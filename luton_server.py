@@ -1,6 +1,7 @@
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
+import os
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -39,6 +40,7 @@ class Handler(SimpleHTTPRequestHandler):
             return
 
         super().do_GET()
+port = int(os.environ.get("PORT", 8000))
+print(f"Luton dashboard server running on port {port}")
 
-print("Luton dashboard server running at http://localhost:8000")
-ThreadingHTTPServer(("localhost", 8000), Handler).serve_forever()
+ThreadingHTTPServer(("0.0.0.0", port), Handler).serve_forever()
