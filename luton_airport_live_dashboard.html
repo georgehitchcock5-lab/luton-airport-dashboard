@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>London Luton Airport Operations</title>
+<link rel="preconnect" href="https://unpkg.com"><link rel="preconnect" href="https://tile.openstreetmap.org">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#071426;--panel:#11233d;--panel2:#172c49;--line:#294260;--muted:#9eb0c8;--cyan:#4de4ed;--blue:#3194e8;--green:#35d69a;--white:#edf4ff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#08172c,#071326 55%,#0b1d34);color:var(--white);font:14px/1.45 Inter,Segoe UI,Arial,sans-serif}
+header{padding:18px 24px 14px;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
+.brand{display:flex;gap:14px;align-items:center}.plane{background:linear-gradient(135deg,#397ff0,#35d0e2);border-radius:14px;width:48px;height:48px;display:grid;place-items:center;font-size:25px}
+.eyebrow{color:var(--cyan);font-weight:800;letter-spacing:2px;font-size:10px}.brand h1{font-size:28px;margin:1px 0 0}.sub{color:var(--muted);font-size:12px}
+.clock{text-align:right}.clock strong{font-size:18px;font-variant-numeric:tabular-nums}.live{color:#6df0bd;backgrofund:#0d332f;border:1px solid #176c5d;padding:7px 12px;border-radius:30px;font-size:11px;font-weight:800;letter-spacing:.6px}
+main{padding:4px 22px 30px;max-width:1800px;margin:auto}.top{display:grid;grid-template-columns:1.7fr 1fr;gap:14px}.panel{background:linear-gradient(145deg,#172d4b,#101f35);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.hero{padding:22px;min-height:225px;position:relative}.hero:after{content:"LTN";position:absolute;right:20px;bottom:-24px;font-size:130px;font-weight:900;color:#fff;opacity:.025;pointer-events:none}
+.code{color:var(--cyan);letter-spacing:2px;font-size:11px;font-weight:900}.hero h2{font-size:36px;letter-spacing:-1.6px;margin:10px 0 4px}.stats{display:flex;gap:34px;margin-top:25px}.stat label{display:block;color:var(--muted);font-size:9px;letter-spacing:1px}.stat b{display:block;font-size:24px;margin-top:3px}
+.weather{padding:20px}.panelhead{display:flex;justify-content:space-between;align-items:center;font-weight:800;letter-spacing:1px;font-size:12px}.tiny{font-size:9px;color:var(--muted);font-weight:500}.weather-main{display:flex;align-items:center;justify-content:space-between;padding:22px 0 16px}.temp{font-size:34px;font-weight:800}.condition{color:var(--muted);font-size:12px}.weather-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;border-top:1px solid var(--line);padding-top:15px}.weather-grid label{display:block;color:var(--muted);font-size:9px;letter-spacing:.7px}.weather-grid b{font-size:15px}
+.boards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.board-head{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}.board-head h3{margin:0;font-size:13px;letter-spacing:.8px}.board-body{height:340px;background:#f1f3f6}.board-body iframe{width:100%;height:100%;border:0;background:#f1f3f6}.fallback{padding:22px;color:#26364c}.fallback a{color:#1769bd;font-weight:700}
+.map-panel{margin-top:14px}.map-head{padding:15px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.map-head h3{margin:0;font-size:14px;letter-spacing:.8px}.actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}button{border:1px solid #365474;background:#203b5d;color:var(--white);padding:8px 12px;border-radius:9px;cursor:pointer;font-weight:700}button:hover{background:#2b527e}.status{color:var(--muted);font-size:11px}#map{height:480px;width:100%;background:#dbe5ee}.map-foot{padding:12px 18px;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
+.aircraft{margin-top:14px}.aircraft-head{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.aircraft-head h3{margin:0;font-size:14px}.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{text-align:left;padding:11px 16px;border-bottom:1px solid #243a56;font-size:12px}th{color:var(--muted);font-size:9px;letter-spacing:1px}td{font-variant-numeric:tabular-nums}.tag{color:#70e9d0;background:#103b3a;padding:3px 7px;border-radius:5px;font-size:10px}
+footer{color:#8498b3;font-size:10px;padding:18px 3px 0;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}a{color:#79c8ff}
+@media(max-width:850px){.top,.boards{grid-template-columns:1fr}.hero h2{font-size:29px}.stats{gap:18px}.board-body{height:300px}#map{height:390px}}@media(max-width:520px){header{padding:14px}.clock{text-align:left}.hero{padding:17px}.stats{gap:12px}.stat label{font-size:8px}.hero h2{font-size:25px}main{padding:4px 10px 24px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand"><div class="plane">✈</div><div><div class="eyebrow">AIRPORT OPERATIONS / UNITED KINGDOM</div><h1>London Luton</h1><div class="sub">Live flight information · Aircraft tracking · Local weather</div></div></div>
+ <div style="display:flex;align-items:center;gap:16px"><span class="live">● LIVE FEEDS</span><div class="clock"><strong id="clock">--:--:--</strong><div class="sub" id="date">UK LOCAL TIME</div></div></div>
+</header>
+<main>
+ <section class="top">
+  <div class="panel hero"><div class="code">LTN - EGGW</div><h2>London Luton Airport</h2><div class="sub">Luton, Bedfordshire, United Kingdom · Elevation 526 ft</div>
+   <div class="stats"><div class="stat"><label>AIRCRAFT NEARBY</label><b id="nearby">—</b></div><div class="stat"><label>ARRIVALS DETECTED</label><b id="arrivals">—</b></div><div class="stat"><label>DEPARTURES DETECTED</label><b id="departures">—</b></div></div>
+  </div>
+  <div class="panel weather"><div class="panelhead"><span>LOCAL WEATHER</span><span class="tiny" id="weather-status">FETCHING LIVE</span></div>
+   <div class="weather-main"><div><div class="temp" id="temp">—°</div><div class="condition" id="condition">Loading conditions…</div></div><div id="weather-icon" style="font-size:38px">🌤️</div></div>
+   <div class="weather-grid"><div><label>WIND DIRECTION</label><b id="winddir">—</b></div><div><label>WIND SPEED</label><b id="windspeed">— km/h</b></div><div><label>FEELS LIKE</label><b id="feels">—°</b></div><div><label>HUMIDITY / GUST</label><b id="humidity">— / —</b></div></div>
+  </div>
+ </section>
+ <section class="boards">
+  <div class="panel"><div class="board-head"><h3>↘ ARRIVALS</h3><span class="tiny">OFFICIAL AIRPORT FLIGHT BOARD</span></div><div class="board-body" id="arr-board"><iframe title="Official Luton arrivals" src="https://www.avionio.com/widget/en/ltn/arrivals?style=3" loading="lazy"></iframe><div class="fallback" hidden>Open the <a href="https://www.avionio.com/widget/en/ltn/arrivals?style=3" target="_blank" rel="noopener">official Luton arrivals board</a>.</div></div></div>
+  <div class="panel"><div class="board-head"><h3>↗ DEPARTURES</h3><span class="tiny">OFFICIAL AIRPORT FLIGHT BOARD</span></div><div class="board-body" id="dep-board"><iframe title="Official Luton departures" src="https://www.avionio.com/widget/en/ltn/departures?style=3" loading="lazy"></iframe><div class="fallback" hidden>Open the <a href="https://www.avionio.com/widget/en/ltn/departures?style=3" target="_blank" rel="noopener">official Luton departures board</a>.</div></div></div>
+ </section>
+ <section class="panel map-panel"><div class="map-head"><h3>✈ LIVE AIRCRAFT — LUTON AREA</h3><div class="actions"><span class="status" id="air-status">Waiting for aircraft feed…</span><button id="refresh">↻ Refresh now</button><button id="toggle">Pause updates</button></div></div><div id="map"></div><div class="map-foot">Aircraft positions are received from community ADS-B receivers (ADSB.lol). Coverage varies; this is not air-traffic-control radar. Refresh interval: 60 seconds.</div></section>
+ <section class="panel aircraft"><div class="aircraft-head"><h3>LIVE AIRCRAFT NEAR LTN</h3><span class="tiny" id="air-count">0 TRACKS</span></div><div class="tablewrap"><table><thead><tr><th>CALLSIGN / HEX</th><th>AIRCRAFT</th><th>ALTITUDE</th><th>SPEED</th><th>HEADING</th><th>LAST SEEN</th></tr></thead><tbody id="air-table"><tr><td colspan="6" class="status">Waiting for live ADS-B data…</td></tr></tbody></table></div></section>
+ <footer><span>Data: Open-Meteo weather · ADSB.lol aircraft · London Luton Airport flight boards</span><span>Auto-refresh: 60 seconds · <a href="https://www.london-luton.co.uk/" target="_blank" rel="noopener">London Luton Airport</a></span></footer>
+</main>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const LAT=51.8747,LON=-0.3683,REFRESH_MS=60000;
+const map=L.map('map').setView([LAT,LON],10);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap contributors'}).addTo(map);
+L.marker([LAT,LON]).addTo(map).bindPopup('<b>London Luton Airport (LTN)</b><br>EGGW · 51.8747, -0.3683');
+const aircraftLayer=L.layerGroup().addTo(map);let timer=null,paused=false,lastAircraft=[];
+function clock(){const d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString('en-GB',{timeZone:'Europe/London'});document.getElementById('date').textContent=d.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric',timeZone:'Europe/London'})+' · UK LOCAL TIME'}
+clock();setInterval(clock,1000);
+function direction(deg){if(!Number.isFinite(deg))return'—';return ['N','NE','E','SE','S','SW','W','NW'][Math.round(deg/45)%8]+' ('+Math.round(deg)+'°)'}
+async function loadWeather(){const s=document.getElementById('weather-status');try{const u=`https://api.open-meteo.com/v1/forecast?latitude=${LAT}&longitude=${LON}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m&timezone=Europe%2FLondon`;const r=await fetch(u);if(!r.ok)throw Error('Weather request failed');const j=await r.json(),c=j.current;document.getElementById('temp').textContent=Math.round(c.temperature_2m)+'°C';document.getElementById('condition').textContent=weatherText(c.weather_code);document.getElementById('weather-icon').textContent=weatherIcon(c.weather_code,c.is_day);document.getElementById('winddir').textContent='↑ '+direction(c.wind_direction_10m);document.getElementById('windspeed').textContent=Math.round(c.wind_speed_10m)+' km/h';document.getElementById('feels').textContent=Math.round(c.apparent_temperature)+'°C';document.getElementById('humidity').textContent=Math.round(c.relative_humidity_2m)+'% / '+Math.round(c.wind_gusts_10m)+' km/h';s.textContent='MODEL UPDATED '+new Date(c.time).toLocaleTimeString('en-GB',{timeZone:'Europe/London'});}catch(e){s.textContent='WEATHER UNAVAILABLE';document.getElementById('condition').textContent='Could not load weather feed';}}
+function weatherText(c){return ({0:'Clear sky',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Depositing rime fog',51:'Light drizzle',53:'Drizzle',55:'Dense drizzle',61:'Slight rain',63:'Moderate rain',65:'Heavy rain',71:'Light snow',73:'Snow',75:'Heavy snow',80:'Rain showers',81:'Rain showers',82:'Heavy showers',95:'Thunderstorm',96:'Thunderstorm with hail',99:'Thunderstorm with hail'})[c]||'Current conditions'}
+function weatherIcon(c,day){if(c>=95)return'⛈️';if(c>=71)return'🌨️';if(c>=61||c>=51&&c<=57||c>=80&&c<=82)return'🌧️';if(c===45||c===48)return'🌫️';return day?'🌤️':'🌙'}
+function fmtAlt(a){if(a==='ground')return'On ground';if(Number.isFinite(a))return Math.round(a).toLocaleString()+' ft';return'—'}
+function fmtSpeed(v){return Number.isFinite(v)?Math.round(v)+' kt':'—'}
+function aircraftIcon(track){const rot=Number.isFinite(track)?track:0;return L.divIcon({className:'',html:`<div style="color:#05d9e8;font-size:21px;text-shadow:0 1px 4px #00152b;transform:rotate(${rot}deg)">▲</div>`,iconSize:[22,22],iconAnchor:[11,11]})}
+async function loadAircraft(){const status=document.getElementById('air-status');status.textContent='Updating ADS-B feed…';try{
+ const url=`/aircraft`;
+ const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw Error('ADS-B service returned '+res.status);const data=await res.json();const ac=(data.ac||[]).filter(a=>Number.isFinite(a.lat)&&Number.isFinite(a.lon)&&(!Number.isFinite(a.seen_pos)||a.seen_pos<120));
+ lastAircraft=ac;aircraftLayer.clearLayers();let arr=0,dep=0;
+ ac.forEach(a=>{const alt=typeof a.alt_baro==='number'?a.alt_baro:0;const marker=L.marker([a.lat,a.lon],{icon:aircraftIcon(a.track)}).addTo(aircraftLayer);const call=(a.flight||a.hex||'Unknown').trim();marker.bindPopup(`<b>${call}</b><br>${a.t||'Aircraft type unknown'} · ${a.r||'Registration unknown'}<br>Altitude: ${fmtAlt(a.alt_baro)}<br>Speed: ${fmtSpeed(a.gs)} · Heading: ${Number.isFinite(a.track)?Math.round(a.track)+'°':'—'}`);if(a.lat>LAT)arr++;else dep++;});
+ document.getElementById('nearby').textContent=ac.length;document.getElementById('arrivals').textContent=arr;document.getElementById('departures').textContent=dep;document.getElementById('air-count').textContent=ac.length+' TRACKS';
+ const tbody=document.getElementById('air-table');if(!ac.length){tbody.innerHTML='<tr><td colspan="6">No aircraft positions currently being reported within 35 km.</td></tr>';}else{tbody.innerHTML=ac.slice().sort((a,b)=>(a.seen_pos||0)-(b.seen_pos||0)).map(a=>`<tr><td><b>${esc((a.flight||a.hex||'—').trim())}</b><br><span class="status">${esc(a.hex||'')}</span></td><td>${esc(a.t||'Unknown')}</td><td>${fmtAlt(a.alt_baro)}</td><td>${fmtSpeed(a.gs)}</td><td>${Number.isFinite(a.track)?Math.round(a.track)+'°':'—'}</td><td>${Number.isFinite(a.seen_pos)?Math.round(a.seen_pos)+'s':'—'}</td></tr>`).join('');}
+ status.textContent='LIVE FEED · UPDATED '+new Date().toLocaleTimeString('en-GB',{timeZone:'Europe/London'});return true;
+ }catch(e){status.textContent='AIRCRAFT FEED UNAVAILABLE · '+e.message;document.getElementById('air-table').innerHTML='<tr><td colspan="6">The live ADS-B endpoint could not be reached from this browser. Try again, or open <a href="https://globe.adsb.lol/" target="_blank" rel="noopener">ADSB.lol live map</a>.</td></tr>';document.getElementById('nearby').textContent='—';return false;}}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function refresh(){await Promise.all([loadWeather(),loadAircraft()])}
+function schedule(){if(timer)clearInterval(timer);if(!paused)timer=setInterval(refresh,REFRESH_MS)}
+document.getElementById('refresh').onclick=refresh;
+document.getElementById('toggle').onclick=()=>{paused=!paused;document.getElementById('toggle').textContent=paused?'Resume updates':'Pause updates';schedule()};
+refresh();schedule();
+</script>
+</body></html>
